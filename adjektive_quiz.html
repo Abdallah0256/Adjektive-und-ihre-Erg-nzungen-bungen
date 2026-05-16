@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adjektive mit Präpositionen — Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --surface: #16161a;
+    --card: #1e1e24;
+    --border: #2a2a35;
+    --accent: #e8c547;
+    --accent2: #5b8af5;
+    --danger: #f05a5a;
+    --success: #4ecb71;
+    --text: #f0eff5;
+    --muted: #7a7a96;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 80px;
+    position: relative;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; left: 50%;
+    transform: translateX(-50%);
+    width: 700px; height: 500px;
+    background: radial-gradient(ellipse, rgba(232,197,71,0.07) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -150px; right: -100px;
+    width: 500px; height: 400px;
+    background: radial-gradient(ellipse, rgba(91,138,245,0.06) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  .container { width: 100%; max-width: 720px; position: relative; z-index: 1; }
+  header { text-align: center; margin-bottom: 48px; animation: fadeDown 0.7s ease both; }
+  .lang-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 12px; display: block;
+  }
+  h1 { font-family: 'Playfair Display', serif; font-size: clamp(26px,5vw,46px); font-weight: 900; line-height: 1.1; }
+  h1 em { font-style: italic; color: var(--accent); }
+  .subtitle { margin-top: 10px; color: var(--muted); font-size: 14px; font-weight: 300; }
+  .total-badge {
+    display: inline-block; margin-top: 10px;
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    background: rgba(91,138,245,0.12); color: var(--accent2);
+    padding: 4px 12px; border-radius: 100px; border: 1px solid rgba(91,138,245,0.2);
+  }
+  .progress-wrap { margin-bottom: 32px; animation: fadeIn 0.5s ease both 0.2s; }
+  .progress-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .progress-label { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
+  .score-badge {
+    font-family: 'DM Mono', monospace; font-size: 12px;
+    background: rgba(232,197,71,0.12); color: var(--accent);
+    padding: 3px 10px; border-radius: 100px; border: 1px solid rgba(232,197,71,0.2);
+  }
+  .progress-bar-bg { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+  .question-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 40px 36px 32px;
+    margin-bottom: 20px;
+    animation: slideUp 0.4s cubic-bezier(0.4,0,0.2,1) both;
+    position: relative; overflow: hidden;
+  }
+  .question-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2)); opacity: 0.6;
+  }
+  .q-type-label {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 3px; text-transform: uppercase; color: var(--muted);
+    margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+  }
+  .q-type-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .question-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(18px,3vw,25px); font-weight: 700; line-height: 1.55;
+    color: var(--text); margin-bottom: 32px;
+  }
+  .blank {
+    display: inline-block; min-width: 80px;
+    border-bottom: 2px solid var(--accent);
+    color: var(--accent); font-style: italic; padding: 0 6px;
+  }
+  .options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .option-btn {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 20px; cursor: pointer; display: flex; align-items: center; gap: 14px;
+    transition: all 0.18s ease; text-align: left; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 400;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(232,197,71,0.06); transform: translateY(-1px); }
+  .option-btn:disabled { cursor: default; }
+  .option-letter {
+    font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500;
+    color: var(--muted); background: var(--bg); width: 26px; height: 26px;
+    border-radius: 6px; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; border: 1px solid var(--border); transition: all 0.18s ease;
+  }
+  .option-btn:hover:not(:disabled) .option-letter { background: var(--accent); color: #000; border-color: var(--accent); }
+  .option-btn.correct { border-color: var(--success); background: rgba(78,203,113,0.08); }
+  .option-btn.correct .option-letter { background: var(--success); color: #000; border-color: var(--success); }
+  .option-btn.wrong { border-color: var(--danger); background: rgba(240,90,90,0.08); }
+  .option-btn.wrong .option-letter { background: var(--danger); color: #fff; border-color: var(--danger); }
+  .option-btn.dimmed { opacity: 0.35; }
+  .feedback-box {
+    border-radius: 10px; padding: 16px 20px; margin-top: 16px;
+    font-size: 14px; display: none; align-items: flex-start;
+    gap: 12px; line-height: 1.6; animation: fadeIn 0.3s ease both;
+  }
+  .feedback-box.show { display: flex; }
+  .feedback-box.correct-fb { background: rgba(78,203,113,0.08); border: 1px solid rgba(78,203,113,0.25); color: #a8edbe; }
+  .feedback-box.wrong-fb { background: rgba(240,90,90,0.08); border: 1px solid rgba(240,90,90,0.25); color: #f9b4b4; }
+  .feedback-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .feedback-note { color: var(--muted); font-size: 13px; margin-top: 4px; font-style: italic; }
+  .next-btn {
+    width: 100%; padding: 18px; background: var(--accent); color: #000; border: none;
+    border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500;
+    cursor: pointer; margin-top: 16px; display: none; transition: all 0.18s ease;
+  }
+  .next-btn:hover { background: #f0d060; transform: translateY(-1px); }
+  .next-btn.show { display: block; animation: fadeIn 0.3s ease both; }
+  #results-screen { display: none; text-align: center; animation: slideUp 0.5s ease both; }
+  .result-ring {
+    width: 150px; height: 150px; border-radius: 50%;
+    margin: 0 auto 28px;
+    background: conic-gradient(var(--accent) var(--pct, 0deg), var(--border) 0);
+    display: flex; align-items: center; justify-content: center; position: relative;
+  }
+  .result-ring::before { content: ''; position: absolute; inset: 14px; background: var(--card); border-radius: 50%; }
+  .result-ring-inner { position: relative; z-index: 1; font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 900; color: var(--accent); }
+  .result-title { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 900; margin-bottom: 10px; }
+  .result-subtitle { color: var(--muted); font-size: 15px; margin-bottom: 32px; }
+  .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 32px; }
+  .stat-box { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 12px; }
+  .stat-number { font-family: 'DM Mono', monospace; font-size: 28px; font-weight: 500; color: var(--text); display: block; }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn {
+    padding: 16px 36px; background: transparent; color: var(--accent);
+    border: 1px solid var(--accent); border-radius: 10px;
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: all 0.18s ease;
+  }
+  .restart-btn:hover { background: var(--accent); color: #000; transform: translateY(-1px); }
+  .review-btn {
+    padding: 16px 36px; background: transparent; color: var(--accent2);
+    border: 1px solid var(--accent2); border-radius: 10px;
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: all 0.18s ease;
+  }
+  .review-btn:hover { background: var(--accent2); color: #fff; transform: translateY(-1px); }
+  #review-screen { display: none; animation: slideUp 0.5s ease both; }
+  .review-title { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; margin-bottom: 24px; text-align: center; }
+  .review-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 28px; }
+  .review-table th {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--muted); padding: 10px 14px;
+    border-bottom: 1px solid var(--border); text-align: left;
+  }
+  .review-table td { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+  .review-table tr.row-wrong td { background: rgba(240,90,90,0.05); }
+  .rev-icon { font-size: 13px; }
+  .rev-adj { color: var(--text); font-weight: 500; }
+  .rev-prep { font-family: 'DM Mono', monospace; font-size: 13px; }
+  .rev-prep.right { color: var(--success); }
+  .rev-prep.wrong-ans { color: var(--danger); text-decoration: line-through; }
+  .rev-ex { color: var(--muted); font-size: 12px; margin-top: 3px; font-style: italic; }
+  .rev-case { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--accent2); }
+  .keyboard-hint {
+    text-align: center; color: var(--muted);
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    margin-top: 20px; letter-spacing: 1px;
+  }
+  kbd { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-size: 10px; }
+  @keyframes fadeDown { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes slideUp  { from { opacity:0; transform:translateY(20px);  } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
+  @keyframes shake    {
+    0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)}
+    40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)}
+  }
+  .shake { animation: shake 0.35s ease both; }
+  @media (max-width:480px) {
+    .options { grid-template-columns: 1fr; }
+    .question-card { padding: 24px 18px 20px; }
+    .stats-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <span class="lang-label">Deutsch · B2 – C1</span>
+    <h1>Adjektive mit <em>Präpositionen</em></h1>
+    <p class="subtitle">Welche Präposition gehört zum Adjektiv?</p>
+    <span class="total-badge" id="total-count-badge">Wird geladen…</span>
+  </header>
+
+  <div id="quiz-screen">
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span class="progress-label" id="q-counter">Frage 1 / ?</span>
+        <span class="score-badge" id="score-display">✓ 0 &nbsp; ✗ 0</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="question-card" id="question-card">
+      <div class="q-type-label" id="q-type-label">Präpositionalergänzung</div>
+      <div class="question-text" id="question-text"></div>
+      <div class="options" id="options-grid"></div>
+      <div class="feedback-box" id="feedback-box">
+        <span class="feedback-icon" id="feedback-icon"></span>
+        <div>
+          <div id="feedback-msg"></div>
+          <div class="feedback-note" id="feedback-note"></div>
+        </div>
+      </div>
+    </div>
+    <button class="next-btn" id="next-btn">Weiter →</button>
+    <p class="keyboard-hint"><kbd>A</kbd> <kbd>B</kbd> <kbd>C</kbd> <kbd>D</kbd> zum Auswählen &nbsp;·&nbsp; <kbd>Enter</kbd> / <kbd>Space</kbd> zum Weiter</p>
+  </div>
+
+  <div id="results-screen">
+    <div class="result-ring" id="result-ring">
+      <div class="result-ring-inner" id="result-pct">—</div>
+    </div>
+    <h2 class="result-title" id="result-title">Ergebnis</h2>
+    <p class="result-subtitle" id="result-subtitle"></p>
+    <div class="stats-row">
+      <div class="stat-box"><span class="stat-number" id="stat-correct">0</span><div class="stat-label">Richtig</div></div>
+      <div class="stat-box"><span class="stat-number" id="stat-wrong">0</span><div class="stat-label">Falsch</div></div>
+      <div class="stat-box"><span class="stat-number" id="stat-total">0</span><div class="stat-label">Fragen gesamt</div></div>
+    </div>
+    <div class="btn-row">
+      <button class="review-btn" onclick="showReview()">Fehler ansehen 📋</button>
+      <button class="restart-btn" onclick="restartQuiz()">Nochmal ↺</button>
+    </div>
+  </div>
+
+  <div id="review-screen">
+    <h2 class="review-title">Falsche Antworten — zur Wiederholung</h2>
+    <table class="review-table" id="review-table">
+      <thead>
+        <tr>
+          <th></th><th>Adjektiv / Ausdruck</th><th>Richtig</th><th>Deine Antwort</th><th>Kasus</th>
+        </tr>
+      </thead>
+      <tbody id="review-tbody"></tbody>
+    </table>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restartQuiz()">Nochmal ↺</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ALL_DATA = [
+  // ── Dativische Präpositionen – basic table (Page 1) ──────────────────────
+  { adj:"(un)abhängig",        prep:"von",       ex:"Es ist abhängig von der Zeit.",                          case_:"Dativ" },
+  { adj:"befreundet",          prep:"mit",       ex:"Er ist befreundet mit dem Nachbarsjungen.",               case_:"Dativ" },
+  { adj:"begeistert",          prep:"von",       ex:"Ich bin begeistert von ihrer Stimme.",                    case_:"Dativ" },
+  { adj:"beschäftigt",         prep:"mit",       ex:"Sie ist beschäftigt mit ihren Hausaufgaben.",             case_:"Dativ" },
+  { adj:"einverstanden",       prep:"mit",       ex:"Sie sind einverstanden mit dem Vorschlag.",               case_:"Dativ" },
+  { adj:"erholt",              prep:"von",       ex:"Er ist erholt vom Urlaub.",                               case_:"Dativ" },
+  { adj:"behilflich",          prep:"bei",       ex:"Sie ist ihm behilflich bei der Arbeit.",                  case_:"Dativ" },
+  { adj:"getrennt",            prep:"von",       ex:"Sie ist getrennt von ihrem Freund.",                      case_:"Dativ" },
+  { adj:"überzeugt",           prep:"von",       ex:"Sie sind überzeugt von dem Plan.",                        case_:"Dativ" },
+  { adj:"verabredet",          prep:"mit",       ex:"Ich bin verabredet mit meiner Kollegin.",                 case_:"Dativ" },
+  { adj:"verbunden",           prep:"mit",       ex:"Mein Handy ist verbunden mit dem Fernseher.",             case_:"Dativ" },
+  { adj:"vergleichbar",        prep:"mit",       ex:"Das ist vergleichbar mit dieser Situation.",              case_:"Dativ" },
+  { adj:"verzweifelt",         prep:"an",        ex:"Er ist verzweifelt an diesem Level.",                     case_:"Dativ" },
+
+  // ── Akkusativische Präpositionen (Page 2) ────────────────────────────────
+  { adj:"angepasst",           prep:"an",        ex:"Das Tier ist angepasst an die Umgebung.",                 case_:"Akkusativ" },
+  { adj:"aufgeregt",           prep:"über",      ex:"Er ist aufgeregt über das Konzert.",                      case_:"Akkusativ" },
+  { adj:"berühmt",             prep:"für",       ex:"Sie ist berühmt für nur einen Song.",                     case_:"Akkusativ" },
+  { adj:"dankbar",             prep:"für",       ex:"Ich bin dankbar für dein Geschenk.",                      case_:"Akkusativ" },
+  { adj:"eifersüchtig",        prep:"auf",       ex:"Sie ist eifersüchtig auf ihr Talent.",                    case_:"Akkusativ" },
+  { adj:"empört",              prep:"über",      ex:"Sie sind empört über diese Aussage.",                     case_:"Akkusativ" },
+  { adj:"engagiert",           prep:"für",       ex:"Er ist sehr engagiert für diese Sache.",                  case_:"Akkusativ" },
+  { adj:"erfreut",             prep:"über",      ex:"Sie ist sehr erfreut über diese Änderung.",               case_:"Akkusativ" },
+  { adj:"gespannt",            prep:"auf",       ex:"Ich bin gespannt auf den nächsten Teil.",                 case_:"Akkusativ" },
+  { adj:"gewöhnt",             prep:"an",        ex:"Ich bin gewöhnt an das kalte Wasser.",                    case_:"Akkusativ" },
+  { adj:"konzentriert",        prep:"auf",       ex:"Sie ist konzentriert auf ihre Arbeit.",                   case_:"Akkusativ" },
+  { adj:"besorgt",             prep:"um",        ex:"Er ist sehr besorgt um seinen Bruder.",                   case_:"Akkusativ" },
+  { adj:"spezialisiert",       prep:"auf",       ex:"Der Arzt ist spezialisiert auf diese Fälle.",             case_:"Akkusativ" },
+  { adj:"verliebt",            prep:"in",        ex:"Er ist verliebt in sie.",                                 case_:"Akkusativ (in+A)" },
+  { adj:"vorbereitet",         prep:"auf",       ex:"Sie ist vorbereitet auf den Test.",                       case_:"Akkusativ" },
+  { adj:"verwundert",          prep:"über",      ex:"Ich bin verwundert über das Ergebnis.",                   case_:"Akkusativ" },
+
+  // ── Nomen mit Präpositionen (Page 2) ─────────────────────────────────────
+  { adj:"Schluss machen",      prep:"mit",       ex:"Er macht Schluss mit dem Rauchen.",                       case_:"Dativ (Nomen)" },
+  { adj:"Angst haben",         prep:"vor",       ex:"Er hat Angst vor nichts.",                                case_:"Dativ (Nomen)" },
+  { adj:"Anspruch haben",      prep:"auf",       ex:"Studierende haben Anspruch auf Urlaub.",                  case_:"Akkusativ (Nomen)" },
+  { adj:"Ansprüche stellen",   prep:"an",        ex:"Die Arbeit stellt hohe Ansprüche an die Studenten.",      case_:"Akkusativ (Nomen)" },
+  { adj:"Verantwortung haben", prep:"für",       ex:"Er trägt Verantwortung für diesen Blog.",                 case_:"Akkusativ (Nomen)" },
+  { adj:"Zweifel haben",       prep:"an",        ex:"Er hat Zweifel an diesen Quellen.",                       case_:"Dativ (Nomen)" },
+
+  // ── bei-Adjektive — Page 3 ────────────────────────────────────────────────
+  { adj:"angesehen",           prep:"bei",       ex:"Goethes Familie war damals bei den Deutschen angesehen.", case_:"Dativ" },
+  { adj:"(un)bekannt",         prep:"bei",       ex:"Shakespeare ist bei allen Anglisten bekannt.",            case_:"Dativ" },
+  { adj:"(un)beliebt",         prep:"bei",       ex:"Er ist bei den Schülern nicht beliebt.",                  case_:"Dativ" },
+
+  // ── gegenüber — Page 4 ────────────────────────────────────────────────────
+  { adj:"aufgeschlossen",      prep:"gegenüber", ex:"Er ist oft Kritik gegenüber aufgeschlossen.",             case_:"Dativ" },
+  { adj:"misstrauisch",        prep:"gegenüber", ex:"Er ist diesen Nachrichten gegenüber misstrauisch.",       case_:"Dativ" },
+  { adj:"zurückhaltend",       prep:"gegenüber", ex:"Er ist den persönlichen Fragen gegenüber zurückhaltend.", case_:"Dativ" },
+
+  // ── mit (extended) — Page 4 ───────────────────────────────────────────────
+  { adj:"fertig",              prep:"mit",       ex:"Ich bin fertig mit der Arbeit.",                          case_:"Dativ" },
+  { adj:"verheiratet",         prep:"mit",       ex:"Sie ist verheiratet mit einem Arzt.",                     case_:"Dativ" },
+  { adj:"verwandt",            prep:"mit",       ex:"Ich bin mit ihr um mehrere Ecken verwandt.",              case_:"Dativ" },
+  { adj:"(un)zufrieden",       prep:"mit",       ex:"Ich bin zufrieden mit dem Ergebnis.",                     case_:"Dativ" },
+
+  // ── nach — Page 4 ─────────────────────────────────────────────────────────
+  { adj:"süchtig",             prep:"nach",      ex:"Viele Menschen sind nach sozialen Medien süchtig.",       case_:"Dativ" },
+  { adj:"verrückt",            prep:"nach",      ex:"Er ist verrückt nach ihr.",                               case_:"Dativ" },
+
+  // ── von (extended) — Page 4 ───────────────────────────────────────────────
+  { adj:"beeindruckt",         prep:"von",       ex:"Sie ist beeindruckt von seiner Leistung.",                case_:"Dativ" },
+  { adj:"entfernt",            prep:"von",       ex:"Das Dorf ist weit entfernt von der Stadt.",               case_:"Dativ" },
+  { adj:"enttäuscht",          prep:"von",       ex:"Er ist enttäuscht von dem Ergebnis.",                     case_:"Dativ" },
+  { adj:"frei",                prep:"von",       ex:"Das Produkt ist frei von Schadstoffen.",                   case_:"Dativ" },
+  { adj:"müde",                prep:"von",       ex:"Ich bin müde von der langen Reise.",                      case_:"Dativ" },
+
+  // ── vor — Page 4 ──────────────────────────────────────────────────────────
+  { adj:"blass",               prep:"vor",       ex:"Er wird blass vor Neid.",                                 case_:"Dativ" },
+  { adj:"rot/grün werden",     prep:"vor",       ex:"Er wird rot vor Scham.",                                   case_:"Dativ" },
+  { adj:"stumm",               prep:"vor",       ex:"Manchmal bin ich stumm vor Staunen.",                     case_:"Dativ" },
+
+  // ── zu — Page 4 ───────────────────────────────────────────────────────────
+  { adj:"bereit",              prep:"zu",        ex:"Sie ist bereit zu helfen.",                                case_:"zu+Infinitiv" },
+  { adj:"entschlossen",        prep:"zu",        ex:"Er ist entschlossen zu handeln.",                         case_:"zu+Infinitiv" },
+  { adj:"(un)fähig",           prep:"zu",        ex:"Er ist nicht fähig zu dieser Leistung.",                  case_:"zu+Infinitiv" },
+  { adj:"(un)freundlich",      prep:"zu",        ex:"Sie ist immer freundlich zu Fremden.",                    case_:"Dativ" },
+  { adj:"gut",                 prep:"zu",        ex:"Er ist gut zu den Kindern.",                              case_:"Dativ" },
+  { adj:"nett",                prep:"zu",        ex:"Sei nett zu deinen Kollegen.",                            case_:"Dativ" },
+
+  // ── auf (extended) — Page 5 ───────────────────────────────────────────────
+  { adj:"ärgerlich",           prep:"auf",       ex:"Er ist ärgerlich auf seinen Bruder.",                     case_:"Akkusativ" },
+  { adj:"angewiesen",          prep:"auf",       ex:"Sie ist angewiesen auf fremde Hilfe.",                    case_:"Akkusativ" },
+  { adj:"begierig",            prep:"auf",       ex:"Er ist begierig auf Wissen.",                             case_:"Akkusativ" },
+  { adj:"böse",                prep:"auf",       ex:"Sie ist böse auf ihren Bruder.",                          case_:"Akkusativ" },
+  { adj:"neidisch",            prep:"auf",       ex:"Sie ist neidisch auf ihren Erfolg.",                      case_:"Akkusativ" },
+  { adj:"neugierig",           prep:"auf",       ex:"Ich bin neugierig auf die Antwort.",                      case_:"Akkusativ" },
+  { adj:"stolz",               prep:"auf",       ex:"Er ist stolz auf seinen Sohn.",                           case_:"Akkusativ" },
+  { adj:"wütend",              prep:"auf",       ex:"Er ist wütend auf seinen Chef.",                          case_:"Akkusativ" },
+
+  // ── für (extended) — Page 5 ───────────────────────────────────────────────
+  { adj:"(un)angenehm",        prep:"für",       ex:"Das ist unangenehm für alle Beteiligten.",                case_:"Akkusativ" },
+  { adj:"bekannt",             prep:"für",       ex:"Sie ist bekannt für ihre Freundlichkeit.",                case_:"Akkusativ" },
+  { adj:"bezeichnend",         prep:"für",       ex:"Das ist bezeichnend für seinen Charakter.",               case_:"Akkusativ" },
+  { adj:"charakteristisch",    prep:"für",       ex:"Das ist charakteristisch für diese Region.",              case_:"Akkusativ" },
+  { adj:"entscheidend",        prep:"für",       ex:"Diese Frage ist entscheidend für die Zukunft.",           case_:"Akkusativ" },
+  { adj:"(un)geeignet",        prep:"für",       ex:"Das Buch ist geeignet für Fortgeschrittene.",             case_:"Akkusativ" },
+  { adj:"nützlich",            prep:"für",       ex:"Diese Funktion ist nützlich für Anfänger.",               case_:"Akkusativ" },
+  { adj:"offen",               prep:"für",       ex:"Sie ist offen für neue Ideen.",                           case_:"Akkusativ" },
+  { adj:"(un)schädlich",       prep:"für",       ex:"Der Stoff ist schädlich für die Umwelt.",                 case_:"Akkusativ" },
+  { adj:"schmerzlich",         prep:"für",       ex:"Das ist schmerzlich für die ganze Familie.",              case_:"Akkusativ" },
+  { adj:"verantwortlich",      prep:"für",       ex:"Er ist verantwortlich für diesen Bereich.",               case_:"Akkusativ" },
+  { adj:"wichtig",             prep:"für",       ex:"Sport ist wichtig für die Gesundheit.",                   case_:"Akkusativ" },
+  { adj:"zuständig",           prep:"für",       ex:"Wer ist zuständig für diesen Bereich?",                   case_:"Akkusativ" },
+
+  // ── gegen — Page 5 ────────────────────────────────────────────────────────
+  { adj:"(un)empfindlich",     prep:"gegen",     ex:"Er ist empfindlich gegen Kälte.",                         case_:"Akkusativ" },
+  { adj:"immun",               prep:"gegen",     ex:"Sie ist immun gegen Kritik.",                             case_:"Akkusativ" },
+  { adj:"allergisch",          prep:"gegen",     ex:"Er ist allergisch gegen Pollen.",                         case_:"Akkusativ" },
+
+  // ── über (extended) — Page 6 ──────────────────────────────────────────────
+  { adj:"verärgert",           prep:"über",      ex:"Er ist verärgert über die Verspätung.",                   case_:"Akkusativ" },
+  { adj:"beunruhigt",          prep:"über",      ex:"Sie ist beunruhigt über die Lage.",                       case_:"Akkusativ" },
+  { adj:"entrüstet",           prep:"über",      ex:"Die Bürger sind entrüstet über die Entscheidung.",        case_:"Akkusativ" },
+  { adj:"entsetzt",            prep:"über",      ex:"Wir sind entsetzt über die Nachrichten.",                 case_:"Akkusativ" },
+  { adj:"erstaunt",            prep:"über",      ex:"Sie ist erstaunt über die Neuigkeit.",                    case_:"Akkusativ" },
+  { adj:"froh",                prep:"über",      ex:"Ich bin froh über die gute Nachricht.",                   case_:"Akkusativ" },
+  { adj:"(un)glücklich",       prep:"über",      ex:"Er ist glücklich über das Geschenk.",                     case_:"Akkusativ" },
+
+  // ── um (extended) — Page 6 ────────────────────────────────────────────────
+  { adj:"bemüht",              prep:"um",        ex:"Die Regierung ist bemüht um eine Lösung.",                case_:"Akkusativ" },
+
+  // ── an + Dativ — Page 6 ───────────────────────────────────────────────────
+  { adj:"arm/reich",           prep:"an",        ex:"Das Land ist reich an Ressourcen.",                       case_:"Dativ (an+D)" },
+  { adj:"beteiligt",           prep:"an",        ex:"Er ist beteiligt an dem Projekt.",                        case_:"Dativ (an+D)" },
+  { adj:"interessiert",        prep:"an",        ex:"Sie ist interessiert an einem Praktikum.",                case_:"Dativ (an+D)" },
+  { adj:"(un)schuldig",        prep:"an",        ex:"Er ist schuldig an diesem Verbrechen.",                   case_:"Dativ (an+D)" },
+
+  // ── an + Akkusativ — Page 6 ───────────────────────────────────────────────
+  { adj:"adressiert",          prep:"an",        ex:"Der Brief ist adressiert an den Direktor.",               case_:"Akkusativ (an+A)" },
+
+  // ── in + Dativ — Page 6 ───────────────────────────────────────────────────
+  { adj:"bewandert",           prep:"in",        ex:"Er ist in diesem Thema bewandert.",                       case_:"Dativ (in+D)" },
+  { adj:"geschickt",           prep:"in",        ex:"Sie ist geschickt im Umgang mit Zahlen.",                 case_:"Dativ (in+D)" },
+  { adj:"(un)erfahren",        prep:"in",        ex:"Er ist erfahren in diesem Bereich.",                      case_:"Dativ (in+D)" },
+  { adj:"tüchtig",             prep:"in",        ex:"Sie ist tüchtig in ihrem Fach.",                         case_:"Dativ (in+D)" },
+
+  // ── in + Akkusativ — Page 6 ───────────────────────────────────────────────
+  { adj:"unterteilt",          prep:"in",        ex:"Das Buch ist unterteilt in drei Teile.",                  case_:"Akkusativ (in+A)" },
+
+  // ── als (Gleichsetzungskasus) — Page 6 ───────────────────────────────────
+  { adj:"anerkannt",           prep:"als",       ex:"Er ist anerkannt als Experte.",                           case_:"Gleichsetzungskasus" },
+  { adj:"bekannt",             prep:"als",       ex:"Sie ist bekannt als großartige Sängerin.",                case_:"Gleichsetzungskasus" },
+];
+
+const ALL_PREPS = [...new Set(ALL_DATA.map(d => d.prep))];
+
+const CONFUSABLE = {
+  "von":       ["für","vor","bei","an","mit"],
+  "mit":       ["nach","bei","von","zu","für"],
+  "auf":       ["über","an","für","gegen","bei"],
+  "über":      ["auf","für","von","um","gegen"],
+  "für":       ["über","zu","von","gegen","an"],
+  "an":        ["auf","von","bei","in","über"],
+  "bei":       ["mit","an","von","zu","für"],
+  "zu":        ["für","mit","nach","an","bei"],
+  "nach":      ["von","zu","mit","für","an"],
+  "um":        ["für","über","an","bei","von"],
+  "in":        ["an","auf","bei","zu","von"],
+  "gegen":     ["für","vor","an","über","um"],
+  "vor":       ["von","bei","gegen","über","an"],
+  "gegenüber": ["mit","bei","zu","von","für"],
+  "als":       ["wie","für","bei","zu","von"],
+};
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function getDistractors(correct, count=3) {
+  const pool = [...new Set((CONFUSABLE[correct] || ALL_PREPS).filter(p => p !== correct))];
+  const chosen = shuffle(pool).slice(0, count);
+  while (chosen.length < count) {
+    const extra = ALL_PREPS.find(p => p !== correct && !chosen.includes(p));
+    if (extra) chosen.push(extra); else break;
+  }
+  return chosen.slice(0, count);
+}
+
+function makeQuestion(item) {
+  // Try lückentext replacement robustly
+  const lücke = () => {
+    const replaced = item.ex.replace(new RegExp('\\b' + item.prep.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b'), '<span class="blank">___</span>');
+    return replaced !== item.ex ? replaced : null;
+  };
+  const lückeText = lücke();
+
+  const styles = [];
+  if (lückeText) {
+    styles.push({ type:"Lückentext", text: lückeText, note:`„${item.adj} + ___" · Kasus: ${item.case_}` });
+  }
+  styles.push(
+    { type:"Adjektiv → Präposition", text:`Welche Präposition gehört zu <strong>„${item.adj}"</strong>?`, note:`Beispiel: ${item.ex}` },
+    { type:"Satzergänzung", text:`„… <strong>${item.adj}</strong> <span class='blank'>___</span> …" — Welche Präposition?`, note:`${item.ex} · Kasus: ${item.case_}` }
+  );
+  return shuffle(styles)[0];
+}
+
+let questions=[], currentIdx=0, score=0, wrongCount=0, answered=false, wrongItems=[];
+
+function buildQuestions() {
+  const pool = shuffle([...ALL_DATA]);
+  questions = pool.map(item => {
+    const { type, text, note } = makeQuestion(item);
+    return {
+      item, type, text, note,
+      options: shuffle([item.prep, ...getDistractors(item.prep, 3)]),
+      correct: item.prep,
+      chosenAnswer: null,
+    };
+  });
+}
+
+function renderQuestion() {
+  const q = questions[currentIdx];
+  answered = false;
+
+  document.getElementById('q-counter').textContent = `Frage ${currentIdx+1} / ${questions.length}`;
+  document.getElementById('score-display').innerHTML = `✓ ${score} &nbsp; ✗ ${wrongCount}`;
+  document.getElementById('progress-fill').style.width = `${(currentIdx/questions.length)*100}%`;
+  document.getElementById('q-type-label').textContent = q.type;
+  document.getElementById('question-text').innerHTML = q.text;
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  ['A','B','C','D'].forEach((ltr, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.dataset.value = q.options[i];
+    btn.innerHTML = `<span class="option-letter">${ltr}</span><span>${q.options[i]}</span>`;
+    btn.addEventListener('click', () => selectAnswer(q.options[i]));
+    grid.appendChild(btn);
+  });
+
+  document.getElementById('feedback-box').className = 'feedback-box';
+  document.getElementById('next-btn').classList.remove('show');
+  document.getElementById('question-card').classList.remove('shake');
+}
+
+function selectAnswer(chosen) {
+  if (answered) return;
+  answered = true;
+  const q = questions[currentIdx];
+  q.chosenAnswer = chosen;
+  const isCorrect = chosen === q.correct;
+
+  document.querySelectorAll('.option-btn').forEach(btn => {
+    btn.disabled = true;
+    const v = btn.dataset.value;
+    if (v === q.correct) btn.classList.add('correct');
+    else if (v === chosen && !isCorrect) btn.classList.add('wrong');
+    else btn.classList.add('dimmed');
+  });
+
+  const fb = document.getElementById('feedback-box');
+  if (isCorrect) {
+    score++;
+    fb.className = 'feedback-box correct-fb show';
+    document.getElementById('feedback-icon').textContent = '✓';
+    document.getElementById('feedback-msg').textContent = `Richtig! „${q.item.adj} ${q.correct}" ist korrekt.`;
+    document.getElementById('feedback-note').textContent = q.note;
+  } else {
+    wrongCount++;
+    wrongItems.push({ item: q.item, chosen });
+    fb.className = 'feedback-box wrong-fb show';
+    document.getElementById('feedback-icon').textContent = '✗';
+    document.getElementById('feedback-msg').textContent = `Falsch. Richtig: „${q.item.adj} ${q.correct}" — du hast „${chosen}" gewählt.`;
+    document.getElementById('feedback-note').textContent = q.note;
+    document.getElementById('question-card').classList.add('shake');
+  }
+  document.getElementById('score-display').innerHTML = `✓ ${score} &nbsp; ✗ ${wrongCount}`;
+  document.getElementById('next-btn').classList.add('show');
+}
+
+function nextQuestion() {
+  currentIdx++;
+  if (currentIdx >= questions.length) showResults();
+  else renderQuestion();
+}
+
+function showResults() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  const rs = document.getElementById('results-screen');
+  rs.style.display = 'block';
+
+  const pct = Math.round((score/questions.length)*100);
+  document.getElementById('result-ring').style.setProperty('--pct', `${pct*3.6}deg`);
+  document.getElementById('result-pct').textContent = pct + '%';
+  document.getElementById('stat-correct').textContent = score;
+  document.getElementById('stat-wrong').textContent = wrongCount;
+  document.getElementById('stat-total').textContent = questions.length;
+
+  const msgs = pct>=90 ? ['Ausgezeichnet! 🏆','Du beherrschst Adjektive mit Präpositionen hervorragend.']
+             : pct>=75 ? ['Sehr gut! 👏','Nur noch ein paar Lücken — fast perfekt!']
+             : pct>=55 ? ['Nicht schlecht 📚','Übe die schwierigen Fälle noch einmal.']
+             :           ['Weiter üben 💪','Präpositionen brauchen Zeit — versuch es nochmal!'];
+  document.getElementById('result-title').textContent = msgs[0];
+  document.getElementById('result-subtitle').textContent = msgs[1];
+}
+
+function showReview() {
+  document.getElementById('results-screen').style.display = 'none';
+  document.getElementById('review-screen').style.display = 'block';
+  const tbody = document.getElementById('review-tbody');
+  tbody.innerHTML = '';
+  if (!wrongItems.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--success);padding:24px;">Keine Fehler! Perfektes Ergebnis 🏆</td></tr>';
+    return;
+  }
+  wrongItems.forEach(({item, chosen}) => {
+    const tr = document.createElement('tr');
+    tr.className = 'row-wrong';
+    tr.innerHTML = `
+      <td class="rev-icon">✗</td>
+      <td><div class="rev-adj">${item.adj}</div><div class="rev-ex">${item.ex}</div></td>
+      <td><span class="rev-prep right">${item.prep}</span></td>
+      <td><span class="rev-prep wrong-ans">${chosen}</span></td>
+      <td><span class="rev-case">${item.case_}</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function restartQuiz() {
+  score=0; wrongCount=0; currentIdx=0; answered=false; wrongItems=[];
+  buildQuestions();
+  document.getElementById('results-screen').style.display = 'none';
+  document.getElementById('review-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  renderQuestion();
+}
+
+document.addEventListener('keydown', e => {
+  if (!answered) {
+    const map={'a':0,'b':1,'c':2,'d':3};
+    const idx = map[e.key.toLowerCase()];
+    if (idx !== undefined) {
+      const btns = document.querySelectorAll('.option-btn');
+      if (btns[idx]) selectAnswer(btns[idx].dataset.value);
+    }
+  } else if (e.key==='Enter'||e.key===' ') {
+    e.preventDefault(); nextQuestion();
+  }
+});
+
+document.getElementById('next-btn').addEventListener('click', nextQuestion);
+
+buildQuestions();
+document.getElementById('total-count-badge').textContent = `${ALL_DATA.length} Einträge aus dem PDF`;
+renderQuestion();
+</script>
+</body>
+</html>
