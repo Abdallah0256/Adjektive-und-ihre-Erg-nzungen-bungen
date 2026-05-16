@@ -34,3 +34,11 @@ Simply open the HTML file in your browser:
 
 ```bash
 open adjektive_quiz.html
+```
+
+# Sources
+
+- C Grammatik
+- [Deutsche Grammatik](https://www.amazon.de/Deutsche-Grammatik-Handbuch-Ausl%C3%A4nderunterricht-referencia/dp/3468494939)
+
+**Made By Claude**
